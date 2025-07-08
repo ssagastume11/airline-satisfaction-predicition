@@ -41,7 +41,7 @@ train <- read_csv("train.csv") %>%
 
 ## 🧹 Process
 
-- Cleaned column Names
+- Cleaned column names
 - Removed ID column
 - Converted columns to factors
 - Handling missing delays values
