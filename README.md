@@ -58,44 +58,77 @@ glimpse(train)
 
 ## 📊 Analyze
 
-![Age distributuion](https://raw.githubusercontent.com/ssagastume11/fifa-world-cup-analysis/refs/heads/main/team_age_exp.png)
+Built a logistic regression model to explore which features influence satisfaction the most.
+
 ```{r}
-# Age distribution
-ggplot(squads, aes(x = Age)) +
-  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
-  labs(title = "Distribution of Player Ages in 2018 World Cup",
-       x = "Player Age", y = "Count of Players",
-       caption = "Source: 2018 FIFA World Cup Squad Data (CSV)") +
-  theme_minimal()
+library(caret)
+
+# Split data
+set.seed(123)
+train_index <- createDataPartition(train$satisfaction_binary, p = 0.8, list = FALSE)
+train_set <- train[train_index, ]
+test_set <- train[-train_index, ]
+
+# Logistic regression
+logit_model <- glm(satisfaction_binary ~ gender + customer_type + type_of_travel + class +
+                     flight_distance + inflight_wifi_service + ease_of_online_booking +
+                     online_boarding + seat_comfort + inflight_entertainment +
+                     cleanliness + departure_delay_in_minutes + arrival_delay_in_minutes,
+                   data = train_set, family = binomial)
+
+summary(logit_model)
 
 ```
 
----
-
 ## 📣 Share
-This analysis was compiled using RMarkdown and includes visualizations and summaries to help sports enthusiasts and data students understand player distribution and team patterns during the 2018 tournament.
+![Overall Passenger Satisfaction](https://raw.githubusercontent.com/ssagastume11/airline-satisfaction-predicition/refs/heads/main/Overall%20Passenger%20Satisfaction.png)
+```{r}
+# Plot: Overall satisfaction
+ggplot(train, aes(x = satisfaction)) +
+  geom_bar(fill = "#2c3e50") +
+  labs(title = "Passenger Satisfaction Distribution",
+       subtitle = "Source: Airline Passenger Satisfaction dataset on Kaggle",
+       x = "Satisfaction", y = "Count") +
+  theme_minimal()
+
+```
+![Average Service Ratings](https://raw.githubusercontent.com/ssagastume11/airline-satisfaction-predicition/refs/heads/main/Average%20Service%20Ratings.png)
+```{r}
+# Plot: Average service ratings
+train %>%
+  select(satisfaction, online_boarding, seat_comfort, inflight_wifi_service,
+         inflight_entertainment, cleanliness) %>%
+  pivot_longer(cols = -satisfaction, names_to = "service", values_to = "rating") %>%
+  group_by(satisfaction, service) %>%
+  summarise(avg_rating = mean(rating), .groups = "drop") %>%
+  ggplot(aes(x = service, y = avg_rating, fill = satisfaction)) +
+  geom_col(position = "dodge") +
+  labs(title = "Average Service Ratings by Satisfaction Group",
+       subtitle = "Source: Airline Passenger Satisfaction dataset on Kaggle",
+       x = "Service", y = "Average Rating (1–5)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
 
 ---
 
 ## ✅ Act
-Results translated into useful results for readers:
+Most model accruacy on the test set was 86.03%, which is signifcantly better than guessing. Key predicitons of satisfaction include:
 ```{r}
-# Identify youngest and oldest teams
-team_ages <- squads %>%
-  group_by(Country) %>%
-  summarise(avg_age = mean(Age, na.rm = TRUE)) %>%
-  arrange(desc(avg_age))
+# Top model coefficients
+coeffs <- summary(logit_model)$coefficients
+sorted_coeffs <- sort(coeffs[, "Estimate"], decreasing = TRUE)
 
-print(team_ages)
+head(sorted_coeffs, 5)
+tail(sorted_coeffs, 5)
 
 ```
-This result helps compare the average ages of teams, which is useful for coaches, fans, and analysts who want to understand how age influences team strategy or tournament performance.
-
 ---
 
 ## 💡 Recommendations
-1. **Explore Club Representation**: Analyze which clubs contributed the most players to the tournament.
-2. **Extend to Match Stats**: Combine this with performance data to assess how age or club affiliation affects match outcomes.
-3. **Visualize Geography**: Trace player nationality to see global patterns.
-4. **Compare Across Tournaments**: Expand the dataset to include other FIFA World Cup years.
-5. **Build Interactive Dashboard**: Use Shiny or Tableau for dynamic team and player exploration.
+1. **Improve Inflight Services**: Entertainment, seat comfort, and Wi-Fi strongly affect satisfaction.
+2. **Work To Reduce delays**: Delays (especially on arrival) significantly reduce satisfaction.
+3. **Support Loyal & Business Travelers**: Loyalty programs and premium travel options increase satisfaction.
+4. **Enhance Digital Experience**: It's important to make online booking and boarding processes more seamless.
+5. **Consider Expanding Buisness Class**: Business class passengers are more likely to be satisfied.
