@@ -128,7 +128,7 @@ tail(sorted_coeffs, 5)
 
 ## 💡 Recommendations
 1. **Improve Inflight Services**: Entertainment, seat comfort, and Wi-Fi strongly affect satisfaction.
-2. **Work To Reduce delays**: Delays (especially on arrival) significantly reduce satisfaction.
+2. **Work To Reduce Delays**: Delays (especially on arrival) significantly reduce satisfaction.
 3. **Support Loyal & Business Travelers**: Loyalty programs and premium travel options increase satisfaction.
 4. **Enhance Digital Experience**: It's important to make online booking and boarding processes more seamless.
 5. **Consider Expanding Buisness Class**: Business class passengers are more likely to be satisfied.
